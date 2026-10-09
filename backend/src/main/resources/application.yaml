@@ -1,0 +1,48 @@
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: always
+    include-binding-errors: always
+
+spring:
+  application:
+    name: smartwater
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  datasource:
+    url: ${DB_URI}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: ${FLYWAY_ENABLED:false}
+
+application:
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET}
+      expiration: ${JWT_EXPIRATION}
+
+brevo:
+  api:
+    key: ${BREVO_API_KEY}
+  sender:
+    email: ${BREVO_SENDER_EMAIL}
+
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha

@@ -4,16 +4,19 @@ spring:
     username: sa
     password: ""
     driver-class-name: org.h2.Driver
+
   jpa:
     hibernate:
       ddl-auto: create-drop
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
+
   flyway:
     enabled: false
 
-app:
-  jwt:
-    secret: VGVzdFNlY3JldEtleUZvclVuaXRUZXN0aW5nT25seU1pbmltdW0yNTZCaXRzTG9uZw==
-    expiration-ms: 3600000
+application:
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET:VGVzdFNlY3JldEtleUZvclVuaXRUZXN0aW5nT25seU1pbmltdW0yNTZCaXRzTG9uZw==}
+      expiration: ${JWT_EXPIRATION:3600000}

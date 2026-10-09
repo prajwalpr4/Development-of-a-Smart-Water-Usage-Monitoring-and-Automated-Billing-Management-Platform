@@ -443,7 +443,7 @@ git clone https://github.com/prajwalpr4/Development-of-a-Smart-Water-Usage-Monit
 cd Development-of-a-Smart-Water-Usage-Monitoring-and-Automated-Billing-Management-Platform
 
 # Copy template to .env
-cp .env.example .env
+cp .env .env
 ```
 Generate your 256-bit base64 secret using PowerShell or `openssl rand -base64 32` and paste it into `JWT_SECRET` inside `.env`.
 

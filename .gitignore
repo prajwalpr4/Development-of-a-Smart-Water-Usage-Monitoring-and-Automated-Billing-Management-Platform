@@ -1,0 +1,59 @@
+# ==============================================================================
+# SMART WATER USAGE MONITORING & AUTOMATED BILLING PLATFORM (Code_Crew)
+# Multi-stack Git Ignore: Java, Spring Boot, Maven, Vite, React, Node, IDEs, Secrets
+# ==============================================================================
+
+# Secrets & Environment Configurations (NEVER COMMIT CREDENTIALS)
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.p12
+*.jks
+
+# Java & Maven Artifacts
+backend/target/
+backend/**/target/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+backend/.mvn/timing.properties
+
+# Frontend & Node Artifacts
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/.pnpm-debug.log*
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# IDE & Editor Files
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+!.vscode/settings.json
+!.vscode/extensions.json
+.settings/
+.classpath
+.project
+bin/
+
+# Temporary & Test Files
+/tmp/
+*.tmp
+*.bak
+test-output/
+report/
+coverage/

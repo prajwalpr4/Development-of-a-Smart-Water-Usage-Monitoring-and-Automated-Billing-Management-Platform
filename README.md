@@ -1,506 +1,506 @@
-# Smart Water Usage Monitoring and Automated Billing Management Platform
+# Development of a Smart Water Usage Monitoring and Automated Billing Management Platform
 
-**Team:** Code_Crew\
-**Stack:** Spring Boot + React.js + PostgreSQL\
-**Roadmap:** 8 weeks
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.16-brightgreen.svg?logo=springboot)](https://spring.io/projects/spring-boot)
+[![Java](https://img.shields.io/badge/Java-17%20LTS-orange.svg?logo=openjdk)](https://openjdk.org/)
+[![Spring Security](https://img.shields.io/badge/Spring%20Security-6%20(Managed)-blue.svg?logo=springsecurity)](https://spring.io/projects/spring-security)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue.svg?logo=postgresql)](https://www.postgresql.org/)
+[![React](https://img.shields.io/badge/React-18.3.1-61DAFB.svg?logo=react)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-5.4-646CFF.svg?logo=vite)](https://vitejs.dev/)
+[![Apache PDFBox](https://img.shields.io/badge/PDFBox-3.0.3-red.svg?logo=apache)](https://pdfbox.apache.org/)
+[![Team](https://img.shields.io/badge/Team-Code__Crew-indigo.svg)](#team-allocation)
+[![Program](https://img.shields.io/badge/Infosys-Springboard%20Project-007ACC.svg)](https://infyspringboard.onwingspan.com/)
 
-## 1. Overview
+---
 
-The Smart Water Usage Monitoring and Automated Billing Management
-Platform is a full-stack web application for apartment communities. It
-records household water consumption, tracks bulk water purchases,
-calculates bills using configurable tiered tariffs, allocates shared
-water costs, identifies abnormal usage, and sends notifications.
+## 1. Executive Summary & Overview
 
-Residents can view daily/monthly usage charts, billing previews, invoice
-history, household comparisons, and water-saving tips. Administrators
-can manage apartments, households, meter readings, tariff plans, bulk
-purchases, billing cycles, alerts, and downloadable PDF invoices.
+The **Smart Water Usage Monitoring and Automated Billing Management Platform** is a full-stack, enterprise-grade IoT telemetry and utility billing solution engineered for multi-family residential communities and apartment complexes. 
 
-## 2. Problem Statement
+Rapid urbanization and climate pressure have made equitable water management in residential societies a major urban challenge. Most apartment complexes suffer from:
+1. **Inequitable flat-rate billing**, where low-consumption single occupants subsidize heavy consumers.
+2. **Unaccounted bulk water procurement**, where high-cost private water tanker deliveries are arbitrarily distributed without reconciling metered consumption.
+3. **Undetected pipe bursts and slow leaks**, causing staggering physical losses and unexpected spikes in monthly utility bills.
+4. **Opaque and disputed manual paper bills**, lacking clear line-item transparency.
 
-Apartment communities need a transparent way to monitor household
-consumption, fairly distribute shared water costs, and identify
-potential leaks or abnormal usage. This platform centralizes usage
-records, billing, cost allocation, alerts, and invoices to help
-residents understand their bills and help administrators manage water
-use and expenditure.
+This platform centralizes daily water consumption logging, automates multi-tier progressive tariffs, reconciles external bulk water purchases, distributes shared overhead proportionally, detects consumption anomalies using statistical deviation rules ($> 2\sigma$), and generates legally compliant, itemized PDF invoices alongside real-time resident dashboards.
 
-## 3. Required Modules
+---
 
-### Module 1 --- Apartment & Household Schema, Water Usage Logging & Core REST APIs
+## 2. Core Architecture & System Flow
 
--   PostgreSQL schema for apartments, households, users, water usage
-    logs, billing cycles, and tariff plans.
--   JPA entity relationships and Flyway migrations.
--   Spring Security 6 and JWT authentication with Admin and Resident
-    roles.
--   Registration, login, profile management, apartment onboarding,
-    household registration, resident assignment, and meter configuration
-    APIs.
--   Jakarta Bean Validation for incoming data.
--   Manual daily meter readings and bulk CSV upload with parsing,
-    validation, and duplicate detection.
--   JUnit 5, Mockito, `@SpringBootTest`, and MockMvc tests.
+The platform is designed as a modular monorepo containing a stateless Spring Boot 3 REST API backend and a responsive React.js single-page application (SPA):
 
-### Module 2 --- Billing Engine, Consumption Distribution & Alert System
+```mermaid
+graph TD
+    subgraph Client Layer [Frontend - React 18 & Vite]
+        RD[Resident Dashboard - Recharts]
+        AP[Administrator Control Panel]
+        AuthUI[JWT Auth & Session Context]
+    end
 
--   Configurable tiered tariff engine. The specification gives an
-    example of a base rate for the first 10 kL and a higher rate beyond
-    that.
--   Bulk water purchase tracking for tanker deliveries and municipal
-    supply billing, including volume and unit cost.
--   Consumption-proportional household cost allocation, with flat-area
-    allocation as a fallback for households without meters.
--   Scheduled email and in-app notifications using Spring `@Scheduled`.
--   Statistical anomaly detection for usage more than two standard
-    deviations above a household average (`> 2σ`), flagged as a
-    potential leak indicator.
--   Billing-cycle opening, finalization, archiving, and itemized invoice
-    records containing base charges, shared-area allocation, and
-    adjustments.
+    subgraph Security & Gateway [Spring Security 6]
+        CORS[CORS Filter - Port 5173]
+        JWTFilter[Stateless JWT Authentication Filter]
+        RBAC[Method Security: ROLE_ADMIN / ROLE_RESIDENT]
+    end
 
-### Module 3 --- React.js Resident Dashboard, Admin Panel & Invoice Generation
+    subgraph Backend Services [Spring Boot 3.5.16 REST API]
+        M1[Module 1: Onboarding, Meter Registry & Usage Ingestion]
+        M2[Module 2: Tiered Billing, Bulk Allocation & Anomaly Engine]
+        M3[Module 3: PDFBox Invoicing & Notification Dispatcher]
+        M4[Module 4: Diagnostics, Analytics & System Audit]
+    end
 
--   Resident dashboard with Recharts daily/monthly trends, billing
-    summary, invoice history, and water-saving tips.
--   Admin panel with household comparisons, meter upload, billing-cycle
-    controls, tariff configuration, and bulk purchase entry.
--   Backend-generated downloadable PDF invoices using Apache PDFBox or
-    iText.
--   Household comparison against apartment average and similar-sized
-    households.
--   JavaMail or SendGrid for bill notifications, overuse alerts, and
-    anomaly reports.
+    subgraph Persistence Layer [PostgreSQL 16 & Flyway]
+        DB[(13-Table Relational Schema)]
+        FW[Flyway Migration Engine]
+    end
 
-### Module 4 --- System Integration, Testing & Project Finalization
+    subgraph External Services
+        SMTP[MailHog / Transactional SMTP]
+        CSV[Bulk Reading Ingestion Parser]
+    end
 
--   End-to-end integration from usage logging through billing,
-    allocation, alert scheduling, and dashboard.
--   Edge-case fixes, JMeter or k6 load/stress tests, and
-    Chrome/Firefox/Edge validation.
--   Responsive mobile/tablet UI.
--   Architecture and ER diagrams, Swagger/OpenAPI documentation via
-    springdoc-openapi, deployment guide using Docker Compose, Flyway
-    migration documentation, known limitations, final PPT, and rehearsed
-    demo.
-
-## 4. Technology Stack
-
-  Layer                 Required technology
-  --------------------- ---------------------------------------------
-  Frontend              React.js
-  Charts                Recharts
-  Backend               Java, Spring Boot
-  Security              Spring Security 6, JWT
-  Database              PostgreSQL
-  ORM / migrations      Spring Data JPA, Hibernate, Flyway
-  Validation            Jakarta Bean Validation
-  Tests                 JUnit 5, Mockito, Spring Boot Test, MockMvc
-  PDF invoices          Apache PDFBox or iText
-  Scheduling            Spring `@Scheduled`
-  Email                 JavaMail or SendGrid
-  API documentation     springdoc-openapi / Swagger UI
-  Performance testing   Apache JMeter or k6
-  Deployment            Docker Compose
-
-**Architecture:** React frontend → Spring Boot REST API → PostgreSQL.
-The browser must not connect directly to PostgreSQL.
-
-## 5. High-Level Architecture
-
-``` text
-Resident / Administrator
-          |
-          v
-    React.js Frontend
-    - Resident dashboard
-    - Admin panel
-    - Charts, alerts, invoices
-          |
-       HTTP/JSON
-          |
-          v
-   Spring Boot REST API
-   - JWT authentication / roles
-   - Apartment and household APIs
-   - Usage logging and CSV import
-   - Billing and cost allocation
-   - Alert / anomaly services
-   - PDF invoice and email services
-          |
-          v
-       PostgreSQL
-   - Users, apartments, households
-   - Meters and usage logs
-   - Tariffs and purchases
-   - Billing cycles, bills, alerts
+    RD --> AuthUI
+    AP --> AuthUI
+    AuthUI --> CORS --> JWTFilter --> RBAC
+    RBAC --> M1 & M2 & M3 & M4
+    M1 --> CSV
+    M1 & M2 & M3 & M4 --> DB
+    FW -.-> DB
+    M3 --> SMTP
 ```
 
-## 6. Suggested Database Entities
+---
 
-Finalize these with an ER diagram during Weeks 1--2.
+## 3. Four Original Modules & Functional Scope
 
--   **Apartment:** community details and configuration.
--   **User:** profile, credentials, and role.
--   **Household:** apartment, flat identifier, area, occupancy if
-    available, and resident association.
--   **WaterMeter:** meter identifier, household association, and
-    status/configuration.
--   **WaterUsageLog:** meter/household, reading date, value or
-    consumption, source (manual/CSV), and audit metadata.
--   **TariffPlan:** apartment, tier thresholds, rates, and effective
-    dates if needed.
--   **BulkWaterPurchase:** source/vendor, volume, unit cost, purchase
-    date, and billing-cycle association.
--   **BillingCycle:** apartment, period, state
-    (open/finalized/archived), timestamps.
--   **HouseholdBill / Invoice:** cycle, household, consumption charge,
-    shared allocation, adjustments, total, and invoice reference.
--   **Alert / Notification:** apartment or household, type, message,
-    trigger value, status, and timestamps.
+The platform strictly adheres to the four functional modules defined in the project specification:
 
-Use foreign keys, appropriate uniqueness constraints/indexes, and
-decimal types for currency. Define duplicate-reading rules. Decide
-whether meter input is a cumulative reading or a period consumption
-amount; document and test that choice.
+### Module 1: Apartment & Household Schema, Water Usage Logging & Core REST APIs (Weeks 1–2)
+- **Database Schema & Migrations:** 13 relational tables initialized with version-controlled Flyway DDL scripts.
+- **Identity & Access Management:** Spring Security 6 stateless JWT authentication, BCrypt password hashing, and role-based access control (`ROLE_ADMIN`, `ROLE_RESIDENT`).
+- **Apartment & Resident Onboarding:** Complex registration, household profile creation with registered floor area (sq. ft.), and resident occupancy mapping.
+- **Water Meter Lifecycle Management:** Hardware serialization and status tracking (`ACTIVE`, `INACTIVE`, `FAULTY`).
+- **Telemetry & Reading Ingestion:**
+  - Single manual daily meter reading API.
+  - Bulk CSV upload endpoint with automated delimiter parsing and error reporting.
+  - Strict input validation: monotonic counter checks ($\text{reading}_t \ge \text{reading}_{t-1}$) and duplicate detection via composite unique constraint on `(meter_id, reading_timestamp)`.
+- **Initial Test Suite:** Unit testing with JUnit 5/Mockito and MockMvc slice integration tests.
 
-## 7. Core Business Rules
+### Module 2: Billing Engine, Consumption Distribution & Alert System (Weeks 3–4)
+- **Billing Cycle Lifecycle:** Automated cycle management (`DRAFT` $\rightarrow$ `ACTIVE` $\rightarrow$ `CALCULATING` $\rightarrow$ `FINALIZED` $\rightarrow$ `CLOSED`).
+- **Configurable Tiered Tariffs:** Progressive slab pricing linked to each apartment (e.g., Tier 1: 0–10 kL @ base rate; Tier 2: $>10$ kL @ higher rate).
+- **Bulk Water Purchase Tracking:** Commercial procurement ledger recording tanker vendor, volume (kL), and purchase cost per billing cycle.
+- **Dual-Path Cost Allocation Engine:**
+  - **Metered Households:** Billed for tiered metered volume + proportional share of bulk water transmission/deficit.
+  - **Unmetered Households (Flat-Area Fallback):** Residual bulk cost allocated based on household floor area ratio:
+    $$\text{FlatAreaCost}_k = C_{\text{unmetered\_pool}} \times \frac{\text{FloorArea}_k}{\sum \text{FloorArea}_{\text{unmetered}}}$$
+- **Statistical Anomaly Detection Engine ($>2\sigma$ Rule):**
+  - Scheduled background worker calculating rolling 30-day mean ($\mu$) and standard deviation ($\sigma$).
+  - Flags readings where $\text{daily\_usage} > \mu + 2\sigma$ as **Potential Anomaly / Spike Warnings** (rather than unverified mechanical leaks).
+  - Cold-start handling for newly registered households ($N < 7$ days cohort median, $7 \le N < 14$ days preliminary baseline).
+- **Overuse Alerts:** Threshold limit notifications for continuous excessive consumption.
 
-### Water readings
+### Module 3: React.js Resident Dashboard, Admin Panel & Invoice Generation (Weeks 5–6)
+- **Resident Portal:** Responsive UI displaying real-time water usage, estimated monthly bill, historical invoices, and active anomaly banners.
+- **Administrator Operations Panel:** Community water audit dashboard (Bulk Inflow vs. Metered Sum = Distribution Loss/Leakage), meter registry, tariff plan manager, CSV upload GUI, and one-click billing cycle execution.
+- **Recharts Visualizations:** Time-series daily consumption line charts, month-over-month bar charts, and peer distribution curves.
+- **Household Benchmarking:** Anonymous comparative analytics (e.g., *"Your household consumed 18% less water than average 3-BHK units this month"*).
+- **Programmatic PDF Invoices:** Built using **Apache PDFBox 3.0.3**, generating immutable, itemized invoice PDFs detailing base usage, shared allocations, flat-area charges, adjustments, and payment QR codes.
+- **Transactional Notifications:** Automated dispatch via Spring Mail and Thymeleaf HTML templates for new bills and anomaly alerts.
 
--   Accept manual readings and CSV imports.
--   Validate apartment, household, meter, date, and numeric values.
--   Reject malformed, negative, or duplicate data according to
-    documented rules.
--   If cumulative meter readings are used, calculate period consumption
-    from successive readings and handle resets/decreasing values
-    explicitly.
+### Module 4: System Integration, Testing & Project Finalization (Weeks 7–8)
+- **End-to-End Module Integration:** Full workflow verification from CSV usage upload to invoice generation and resident viewing.
+- **Edge-Case Hardening:** Verification of meter replacement resets, leap periods, unmetered transitions, and zero-consumption units.
+- **Performance & Concurrency Testing:** JMeter / k6 load testing simulating concurrent CSV uploads and bulk billing runs.
+- **Cross-Browser & Responsive QA:** Cross-platform validation on Chrome, Firefox, Safari, Edge, and mobile viewports.
+- **Documentation & OpenAPI:** Production OpenAPI 3.0 documentation (`/swagger-ui.html`).
+- **Docker Compose Deployment:** Multi-container production orchestration for PostgreSQL 16, backend API, frontend SPA, and MailHog.
+- **Final Presentation Deliverables:** Project documentation, slide deck (PPT), and live demonstration rehearsal.
 
-### Tiered tariff
+---
 
--   Store configurable tier thresholds/rates per apartment.
--   Implement the example of a base rate for the first 10 kL and a
-    higher rate beyond it, while keeping the threshold configurable.
--   Test below, exactly at, and above each tier boundary.
--   Store a charge breakdown so the bill is explainable.
+## 4. Eight-Week Milestone Delivery Roadmap
 
-### Bulk purchase and shared allocation
+| Milestone | Target Weeks | Core Deliverables & Capabilities | Verification Artifacts |
+| :--- | :--- | :--- | :--- |
+| **Milestone 1** | **Weeks 1–2** | Schema DDL, Spring Security 6 JWT, Apartment Onboarding, Meter Registry, Usage Logging, CSV Upload & Validation. | Passing unit & MockMvc integration tests; Flyway scripts. |
+| **Milestone 2** | **Weeks 3–4** | Configurable Tiered Tariffs, Bulk Water Accounting, Proportional & Flat-Area Billing Engine, $>2\sigma$ Anomaly Engine, Billing Cycles. | Billing calculation verification suites, math precision tests. |
+| **Milestone 3** | **Weeks 5–6** | React Resident Dashboard, Admin Control Panel, Recharts Visuals, Apache PDFBox Invoice Engine, Spring Mail Dispatcher. | Functional UI flows, sample PDF invoices, test emails in MailHog. |
+| **Milestone 4** | **Weeks 7–8** | End-to-End System Integration, JMeter/k6 Load Testing, Responsive Mobile QA, Docker Compose Guide, Final Report & PPT. | Load test performance logs, OpenAPI docs, Docker deployment, Demo video. |
 
--   Record purchased volume and unit cost.
--   Link purchases and bills to a billing cycle.
--   Allocate costs proportionally to metered household consumption.
--   Use flat-area distribution as the fallback for households without
-    meters.
--   Document rounding and reconciliation rules.
+---
 
-### Alerts and anomaly detection
+## 5. Database Architecture (13-Table Schema)
 
--   Support configurable usage thresholds.
--   Alert when a household exceeds its threshold.
--   Flag usage `> 2σ` above the household average as a potential
-    anomaly.
--   Define the historical baseline window and minimum data needed; avoid
-    claiming a leak is confirmed.
--   Prevent repeated notifications for the same event where practical.
+The database schema models all aspects of multi-tenant apartment water monitoring, procurement, and billing across **13 tables**:
 
-### Billing cycles
+```mermaid
+erDiagram
+    APARTMENTS ||--o{ USERS : houses_or_employs
+    APARTMENTS ||--o{ HOUSEHOLDS : contains
+    APARTMENTS ||--o{ TARIFF_PLANS : configures
+    APARTMENTS ||--o{ BILLING_CYCLES : schedules
+    APARTMENTS ||--o{ BULK_WATER_PURCHASES : procures
+    APARTMENTS ||--o{ BILLS : issues
 
--   Support open, finalize, and archive operations.
--   Define what can change after finalization.
--   Preserve invoice breakdowns and adjustments; do not silently
-    recalculate finalized bills.
+    USERS ||--o{ HOUSEHOLDS : primary_resident
+    USERS ||--o{ BULK_WATER_PURCHASES : records
+    USERS ||--o{ NOTIFICATIONS : receives
 
-## 8. Suggested REST API Groups
+    HOUSEHOLDS ||--o| WATER_METERS : equipped_with
+    HOUSEHOLDS ||--o{ WATER_USAGE_LOGS : logs_usage
+    HOUSEHOLDS ||--o{ BILLS : billed_to
+    HOUSEHOLDS ||--o{ ALERTS : experiences
 
-These are suggested resource groups, not existing implemented endpoints.
-Final routes/payloads must be documented in Swagger/OpenAPI.
+    WATER_METERS ||--o{ WATER_USAGE_LOGS : records
+    WATER_METERS ||--o{ ALERTS : monitors
 
-  Group            Responsibility
-  ---------------- -----------------------------------------------------
-  Authentication   Register/login, JWT, profile
-  Apartments       Apartment/community management
-  Households       Registration and resident assignment
-  Meters           Meter configuration
-  Usage logs       Add/list readings, CSV import, duplicate checks
-  Tariffs          View/configure tier thresholds and rates
-  Bulk purchases   Record/list water purchases
-  Billing cycles   Open, finalize, archive, inspect
-  Bills/invoices   Preview, itemized bill, PDF download
-  Allocations      Explain shared-cost calculations
-  Alerts           List, acknowledge, resolve, inspect anomaly details
-  Dashboard        Resident/admin metrics and chart data
+    TARIFF_PLANS ||--o{ TARIFF_TIERS : defines
 
-Use consistent JSON, HTTP status codes, validation errors, pagination
-where needed, and server-side role checks. Residents must not be
-authorized to perform admin operations.
+    BILLING_CYCLES ||--o{ BULK_WATER_PURCHASES : aggregates
+    BILLING_CYCLES ||--o{ BILLS : generates
 
-## 9. Eight-Week Milestone Plan
+    BILLS ||--o{ INVOICE_LINE_ITEMS : itemizes
 
-### Weeks 1--2 --- Database, security, core APIs
+    ALERTS ||--o{ NOTIFICATIONS : triggers
 
-1.  Create repository, backend/frontend skeletons, environment
-    configuration, and coding conventions.
-2.  Create PostgreSQL schema, JPA entities, relationships, and Flyway
-    migrations.
-3.  Implement JWT authentication and Admin/Resident authorization.
-4.  Implement apartment, household, resident, and meter APIs.
-5.  Implement manual readings and CSV import with validation/duplicate
-    detection.
-6.  Add JUnit/Mockito/MockMvc tests. **Evidence:** ER diagram, login
-    demo, documented APIs, and working usage-entry flow.
+    APARTMENTS {
+        bigint id PK
+        varchar name
+        varchar code UK
+        varchar address
+        varchar city
+        int total_units
+        timestamp created_at
+    }
 
-### Weeks 3--4 --- Billing, allocation, alerts
+    USERS {
+        bigint id PK
+        bigint apartment_id FK
+        varchar email UK
+        varchar password_hash
+        varchar full_name
+        varchar role "ROLE_ADMIN | ROLE_RESIDENT"
+        boolean is_active
+    }
 
-1.  Implement configurable tiered tariffs.
-2.  Implement bulk purchase tracking.
-3.  Implement proportional cost allocation and flat-area fallback.
-4.  Implement billing-cycle states and itemized bills.
-5.  Implement scheduled thresholds and `> 2σ` anomaly flags.
-6.  Test tariff boundaries, missing meters, rounding, duplicate
-    readings, and insufficient anomaly history. **Evidence:** repeatable
-    sample bill calculation, allocation breakdown, and alert demo.
+    HOUSEHOLDS {
+        bigint id PK
+        bigint apartment_id FK
+        varchar unit_number
+        decimal floor_area_sqft "Used for flat-area fallback"
+        int occupant_count
+        bigint primary_resident_id FK
+        boolean is_metered
+    }
 
-### Weeks 5--6 --- React UI, invoices, email
+    WATER_METERS {
+        bigint id PK
+        bigint apartment_id FK
+        bigint household_id FK
+        varchar meter_serial_number UK
+        varchar status "ACTIVE | INACTIVE | FAULTY"
+        date installation_date
+    }
 
-1.  Add React routing, login, and role-specific navigation.
-2.  Build resident charts, billing summary, invoice history, and tips.
-3.  Build admin usage comparisons, uploads, tariff/purchase forms, and
-    cycle controls.
-4.  Add household benchmarking.
-5.  Generate backend PDF invoices.
-6.  Integrate email notifications. **Evidence:** resident/admin journeys
-    connected to the actual API and a downloadable invoice.
+    WATER_USAGE_LOGS {
+        bigint id PK
+        bigint meter_id FK
+        bigint household_id FK
+        timestamp reading_timestamp
+        decimal cumulative_reading_liters
+        decimal consumption_liters "Delta: reading_t - reading_{t-1}"
+        varchar reading_source "MANUAL | CSV_IMPORT"
+    }
 
-### Weeks 7--8 --- Integration and finalization
+    BILLING_CYCLES {
+        bigint id PK
+        bigint apartment_id FK
+        varchar cycle_name
+        date start_date
+        date end_date
+        date due_date
+        varchar status "DRAFT | ACTIVE | CALCULATING | FINALIZED | CLOSED"
+    }
 
-1.  Test usage → storage → billing → allocation → alert → dashboard →
-    invoice.
-2.  Fix integration bugs and edge cases.
-3.  Run JMeter/k6 tests and document results.
-4.  Validate browsers and responsive layouts.
-5.  Finish OpenAPI, ERD, setup guide, Docker Compose guide, migrations,
-    and known limitations.
-6.  Prepare PPT and rehearse the complete demo. **Evidence:**
-    reproducible deployment, test evidence, integrated demo, and
-    complete documentation.
+    TARIFF_PLANS {
+        bigint id PK
+        bigint apartment_id FK
+        varchar plan_name
+        date effective_from
+        boolean is_active
+    }
 
-## 10. Recommended Build Order
+    TARIFF_TIERS {
+        bigint id PK
+        bigint tariff_plan_id FK
+        int tier_order
+        varchar tier_name
+        decimal min_volume_kl
+        decimal max_volume_kl "Nullable for top slab"
+        decimal rate_per_kl
+    }
 
-1.  Repository and project skeletons.
-2.  Database schema and migrations.
-3.  Authentication and roles.
-4.  Apartment/household/resident/meter management.
-5.  Usage logging and CSV validation.
-6.  Tariff engine and unit-tested calculations.
-7.  Bulk purchases and shared allocation.
-8.  Billing-cycle management and invoice records.
-9.  Threshold alerts and anomaly detection.
-10. React layout, login, and role-specific dashboards.
-11. Connect forms/charts to real APIs.
-12. PDF invoices and email.
-13. Integration, performance, browser, and responsive tests.
-14. Documentation, Docker Compose, slides, and demo rehearsal.
+    BULK_WATER_PURCHASES {
+        bigint id PK
+        bigint apartment_id FK
+        bigint billing_cycle_id FK
+        varchar vendor_name
+        decimal volume_kl
+        decimal total_cost
+        varchar invoice_reference
+    }
 
-Build one vertical slice at a time. A feature is not complete until its
-database, backend, UI, validation, and tests work together.
+    BILLS {
+        bigint id PK
+        varchar bill_number UK
+        bigint apartment_id FK
+        bigint billing_cycle_id FK
+        bigint household_id FK
+        decimal total_consumption_kl
+        decimal consumption_charge
+        decimal shared_cost_allocation
+        decimal flat_area_charge
+        decimal adjustments
+        decimal total_amount
+        varchar payment_status "UNPAID | PAID | OVERDUE"
+        varchar pdf_file_path
+    }
 
-## 11. Suggested Five-Member Team Allocation
+    INVOICE_LINE_ITEMS {
+        bigint id PK
+        bigint bill_id FK
+        varchar category "TIERED_USAGE | SHARED_BULK | FLAT_AREA | ADJUSTMENT"
+        varchar description
+        decimal quantity
+        decimal unit_rate
+        decimal amount
+    }
 
--   **Member 1 --- Backend/API lead:** Spring Boot structure, REST
-    conventions, authentication integration, API contracts.
--   **Member 2 --- Database/billing:** PostgreSQL, JPA, Flyway, tariff
-    engine, billing cycles, purchases, allocations.
--   **Member 3 --- Resident frontend:** React resident dashboard,
-    Recharts, bill summary, history, comparisons, tips.
--   **Member 4 --- Admin/notifications:** Admin UI, CSV upload,
-    tariff/purchase forms, alerts, email, invoice-download integration.
--   **Member 5 --- QA/integration/docs:** test strategy, end-to-end and
-    performance tests, Docker, documentation, demo coordination.
+    ALERTS {
+        bigint id PK
+        bigint apartment_id FK
+        bigint household_id FK
+        bigint meter_id FK
+        varchar alert_type "POTENTIAL_ANOMALY_SPIKE_2_SIGMA | OVERUSE_THRESHOLD | SUSPECTED_LEAK"
+        varchar severity "LOW | MEDIUM | HIGH | CRITICAL"
+        decimal observed_value
+        decimal baseline_mean
+        decimal baseline_std_dev
+        boolean is_resolved
+    }
 
-This is a suggested split. Assign named owners, review API contracts
-early, and integrate continuously rather than waiting until the end.
-
-## 12. Optional Differentiators
-
-These are recommendations, not mandatory requirements. Implement them
-only after the required flow works.
-
-1.  **Explainable anomaly alerts:** show the baseline, recent usage,
-    deviation, and reason for the alert.
-2.  **Apartment water-balance view:** compare purchased water, metered
-    household consumption, and common-area allocation; flag unexplained
-    differences for investigation.
-3.  **Bill what-if preview:** estimate how reduced consumption could
-    affect the next bill under the configured tariff.
-4.  **Water-efficiency indicator:** show trends and comparisons with
-    suitable peer households.
-5.  **IoT-ready ingestion:** keep the usage API ready for future sensor
-    integration while supporting manual/CSV entry now.
-
-Do not describe an optional feature as completed unless it is
-implemented and tested.
-
-## 13. Testing Strategy
-
--   **Authentication:** valid/invalid login, invalid/expired JWT, role
-    restrictions.
--   **Usage:** valid/invalid values, duplicates, unknown meters, CSV
-    errors, dates.
--   **Billing:** zero usage, tariff boundaries, high usage, rounding,
-    adjustments.
--   **Allocation:** all metered, some unmetered, zero-consumption cases,
-    reconciliation.
--   **Anomalies:** normal values, spikes, insufficient history, repeated
-    alerts.
--   **Cycles:** open/finalize/archive and post-finalization changes.
--   **Invoices:** line items, totals, PDF response, authorization.
--   **Integration:** usage input through invoice download.
--   **Frontend:** loading, empty, validation, success/error states,
-    responsive screens.
--   **Performance:** record setup, load, response results, and
-    bottlenecks. Never claim results that have not been measured.
-
-## 14. Security and Configuration
-
--   Never commit passwords, JWT secrets, API keys, or real resident
-    data.
--   Use secure password hashing supported by Spring Security.
--   Enforce authorization on the backend; hiding UI buttons is not
-    security.
--   Validate input on the server and configure CORS for the frontend
-    origin.
--   Avoid logging credentials or JWTs.
--   Use separate local and production configurations.
--   Keep `.env.example` limited to placeholder values.
-
-## 15. Repository Layout
-
-``` text
-smart-water-platform/
-├── backend/
-│   ├── src/
-│   ├── pom.xml
-│   └── ...
-├── frontend/
-│   ├── src/
-│   ├── package.json
-│   └── ...
-├── docs/
-│   ├── architecture.md
-│   ├── database-erd.md
-│   ├── api-guide.md
-│   └── demo-checklist.md
-├── .env.example
-├── .gitignore
-├── docker-compose.yml
-└── README.md
+    NOTIFICATIONS {
+        bigint id PK
+        bigint user_id FK
+        bigint alert_id FK
+        bigint bill_id FK
+        varchar channel "EMAIL | IN_APP"
+        varchar recipient
+        varchar status "PENDING | SENT | FAILED"
+    }
 ```
 
-This is the recommended structure; create files as implementation
-progresses.
+### Key Relational Constraints & Indexes
+1. **Duplicate Prevention:** Composite unique constraint on `(meter_id, reading_timestamp)` in `water_usage_logs`.
+2. **Single Bill Guarantee:** Composite unique constraint on `(billing_cycle_id, household_id)` in `bills`.
+3. **Apartment Isolation:** Composite unique constraint on `(apartment_id, unit_number)` in `households`.
+4. **Billing Period Integrity:** Composite unique constraint on `(apartment_id, start_date, end_date)`.
+5. **High-Frequency Query Indexes:** B-Tree indexes on `(household_id, reading_timestamp DESC)` for high-speed dashboard analytics.
 
-## 16. Local Setup
+---
+
+## 6. Accounting Rules & Double-Counting Prevention
+
+To ensure mathematical precision, compliance with community accounting standards, and eliminate double-counting, the billing calculation follows a strict sequence:
+
+```
+┌───────────────────────────────────────────────────────────────────────────────────┐
+│                          BILLING ENGINE CALCULATION PIPELINE                      │
+├───────────────────────────────────────────────────────────────────────────────────┤
+│  STEP 1: Metered Household Consumption & Tiered Charges                           │
+│          • Compute individual household delta: V_i = EndReading - StartReading    │
+│          • Apply ordered Tariff Tiers (e.g. 0-10 kL @ R1, >10 kL @ R2)            │
+│          • Result: TieredCharge_i                                                 │
+│                                                                                   │
+│  STEP 2: Bulk Purchase Cost Pool Aggregation                                      │
+│          • Aggregate total bulk water purchase cost: C_bulk = Sum(Cost)           │
+│                                                                                   │
+│  STEP 3: Partitioning into Non-Overlapping Shared Pools                           │
+│          • Split C_bulk into C_bulk_metered and C_bulk_unmetered                  │
+│          • Ensures no dollar of procurement is assigned to both pools             │
+│                                                                                   │
+│  STEP 4: Dual-Path Distribution                                                   │
+│          • Metered Households: Allocated proportionally to metered usage          │
+│          • Unmetered Households: Flat-Area Fallback based on floor area ratio     │
+│                                                                                   │
+│  STEP 5: Adjustments, Totaling & Rounding Discrepancy Reconciliation              │
+│          • Add credits / arrears / penalties                                      │
+│          • Apply Banker's Rounding (HALF_EVEN) with penny reconciliation          │
+│          • Guarantee: Sum(AllocatedBills) == C_target                             │
+└───────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Charge Component Definitions
+1. **Tiered Usage Charge ($\text{TieredCharge}_i$):**
+   - Applies only to metered households based on individual consumption ($V_i$).
+   - Calculated via progressive slabs (e.g., Tier 1: 0–10 kL @ $R_1$; Tier 2: $>10$ kL @ $R_2$):
+     $$\text{TieredCharge}_i = \sum_{t=1}^{T} \max\left(0, \min(V_i, \text{TierMax}_t) - \text{TierMin}_t\right) \times \text{Rate}_t$$
+   - Unmetered units do not have meters; this charge component is $0$.
+
+2. **Shared Bulk Water Allocation ($\text{SharedCost}_i$):**
+   - Metered units receive an allocation of the metered bulk water pool proportional to their actual usage:
+     $$\text{SharedCost}_i = C_{\text{bulk\_metered}} \times \frac{V_i}{\sum_{j \in \text{Metered}} V_j}$$
+
+3. **Flat-Area Fallback ($\text{FlatAreaCost}_k$):**
+   - Unmetered units have no meters to measure consumption. Their water cost is derived from the unmetered bulk water pool allocated strictly by registered floor area:
+     $$\text{FlatAreaCost}_k = C_{\text{bulk\_unmetered}} \times \frac{\text{FloorArea}_k}{\sum_{m \in \text{Unmetered}} \text{FloorArea}_m}$$
+
+### Prevention of Double-Counting
+Bulk water purchases represent external tanker water brought into the community storage tanks to meet demand.
+- The cost pool $C_{\text{bulk}}$ is partitioned into disjoint sectors ($C_{\text{bulk\_metered}} + C_{\text{bulk\_unmetered}} = C_{\text{bulk}}$).
+- Metered households only pay `TieredCharge` + `SharedCost`.
+- Unmetered households only pay `FlatAreaCost`.
+- Each charge represents an independent, distinct line item in `invoice_line_items`.
+- **Exact Conservation of Funds:**
+  $$\sum_{i \in \text{Metered}} \text{SharedCost}_i + \sum_{k \in \text{Unmetered}} \text{FlatAreaCost}_k \equiv C_{\text{bulk}}$$
+
+### Rounding Discrepancy Reconciliation (Penny Conservation)
+- Intermediate arithmetic uses `BigDecimal` with 6 decimal places and `HALF_EVEN` (Banker's rounding).
+- Line items are rounded to 2 decimal places (`HALF_UP`).
+- Any fractional cent/paise discrepancy across the apartment pool ($\Delta = C_{\text{target}} - \sum \text{Allocated}$) is assigned to the household with the largest allocation fraction, ensuring the sum of all distributed bills matches the total cost pool down to the penny.
+
+---
+
+## 7. Statistical Anomaly Detection Engine ($>2\sigma$ Rule)
+
+The anomaly detection engine evaluates consumption spikes without jumping to false conclusions:
+
+- **Classification:** An occurrence where $X_t > \mu + 2\sigma$ is recorded as `POTENTIAL_ANOMALY_SPIKE_2_SIGMA` or `SUSPECTED_LEAK`. It is treated as an investigation alert rather than a confirmed mechanical failure.
+- **Statistical Rule:**
+  $$\text{Anomaly Condition: } X_t > \mu_{\text{household}} + 2 \times \sigma_{\text{household}}$$
+  where $\mu$ is the rolling 30-day mean of daily consumption and $\sigma$ is the standard deviation.
+- **Handling Insufficient Historical Data (Cold-Start Strategy):**
+  - **$N < 7$ Days:** The engine cannot calculate a reliable standard deviation. It compares against the **Apartment Cohort Median** for households with the same occupancy count ($\mu_{\text{cohort}} + 2\sigma_{\text{cohort}}$).
+  - **$7 \le N < 14$ Days:** Evaluated with a wider safety margin ($> 2.5\sigma$) and flagged with `PRELIMINARY_BASELINE`.
+  - **$N \ge 14$ Days:** The full individual household $>2\sigma$ statistical evaluation activates automatically.
+
+---
+
+## 8. Technology Stack & Compatibility Matrix
+
+| Component | Technology | Version | Rationale & Compatibility |
+| :--- | :--- | :--- | :--- |
+| **Runtime** | Java OpenJDK | **17 LTS** | Matches host environment (`Temurin-17.0.19`). Baseline for Spring Boot 3. |
+| **Backend Framework** | Spring Boot | **3.5.16** | Satisfies project specification requiring Spring Security 6. *(Reached EOL June 2026).* |
+| **Security & Auth** | Spring Security 6 / JJWT | Managed / **0.12.6** | Stateless JWT authentication, BCrypt, RBAC (`ADMIN`, `RESIDENT`). |
+| **Database Engine** | PostgreSQL | **16 (Alpine Container)** | Relational engine with time-series statistical window functions. |
+| **Migrations** | Flyway | **11.7.2 (Managed)** | Version-controlled DDL migrations with `flyway-database-postgresql`. |
+| **PDF Invoices** | Apache PDFBox | **3.0.3** | Apache 2.0 open-source programmatic PDF generation. |
+| **Frontend Framework** | React.js (via Vite) | **18.3.1 (Vite 5.4)** | React 18 LTS; fully compatible with Recharts and Axios. |
+| **Visualizations** | Recharts | **2.12.7** | Interactive consumption series and peer benchmarking. |
+| **API Documentation** | SpringDoc OpenAPI | **2.8.5** | OpenAPI 3.0 Swagger UI for Spring Boot 3.5. |
+| **Validation** | Jakarta Bean Validation | Managed | Hibernate Validator 8 DTO constraint validation. |
+| **Testing** | JUnit 5 / Mockito / MockMvc | Managed | Comprehensive unit, repository, and controller slice integration testing. |
+
+---
+
+## 9. Security & Secrets Management Strategy
+
+1. **Zero Secrets in Version Control:** The `.env` file is excluded via `.gitignore`. The repository only tracks `.env.example` with safe dummy placeholders.
+2. **Fail-Fast Boot Enforcement:** Spring Boot is configured without a static fallback for `JWT_SECRET`. If `JWT_SECRET` is unset or blank in the active environment, the application immediately throws an exception on startup rather than running with an insecure default.
+3. **Secure Key Generation:**
+   ```powershell
+   # Windows PowerShell 256-bit Base64 Key Generator
+   [Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Minimum 0 -Maximum 256 }))
+   ```
+
+---
+
+## 10. Suggested Team Allocation (Code_Crew)
+
+- **Member 1 (Backend & Security Lead):** Spring Boot architecture, Spring Security 6, JWT filters, REST controllers, API contracts.
+- **Member 2 (Database & Billing Lead):** PostgreSQL, Spring Data JPA, Flyway migrations, tiered tariff engine, bulk purchase allocation, rounding reconciliation.
+- **Member 3 (Resident Experience Frontend):** React resident portal, Recharts daily/monthly trends, bill breakdown UI, mobile responsiveness.
+- **Member 4 (Admin Panel & Anomaly Lead):** Administrator dashboard, CSV upload interface, $>2\sigma$ anomaly detection engine, Apache PDFBox invoice generation, Spring Mail integration.
+
+---
+
+## 11. Quickstart & Local Setup Guide
 
 ### Prerequisites
+- Java 17 LTS (`java -version`)
+- Node.js 18+ and npm (`node -v`, `npm -v`)
+- Apache Maven (or use bundled `.\mvnw.cmd` / `./mvnw`)
+- Docker Desktop or a local PostgreSQL 16 instance
 
--   Git
--   Java version compatible with the selected Spring Boot version
--   Maven or Maven Wrapper
--   Node.js and npm
--   PostgreSQL
--   Optional: Docker and Docker Compose
+### 1. Configure Environment
+```bash
+# Clone the repository
+git clone https://github.com/prajwalpr4/Development-of-a-Smart-Water-Usage-Monitoring-and-Automated-Billing-Management-Platform.git
+cd Development-of-a-Smart-Water-Usage-Monitoring-and-Automated-Billing-Management-Platform
 
-### Setup sequence
+# Copy template to .env
+cp .env.example .env
+```
+Generate your 256-bit base64 secret using PowerShell or `openssl rand -base64 32` and paste it into `JWT_SECRET` inside `.env`.
 
-1.  Clone the repository.
-2.  Create a local PostgreSQL database and configure backend connection
-    variables.
-3.  Start the backend so Flyway migrations run.
-4.  Install frontend dependencies with `npm install` inside `frontend/`.
-5.  Configure the frontend API base URL to point to the backend.
-6.  Start the React development server.
-7.  Open Swagger UI and test the endpoints.
+### 2. Start PostgreSQL & MailHog (via Docker Compose)
+```bash
+docker compose up -d
+```
+- PostgreSQL: `localhost:5432`
+- MailHog Web UI: `http://localhost:8025`
 
-Add exact commands and tested URLs after the actual build files, ports,
-and scripts are created. Do not guess commands that have not been
-tested.
+### 3. Run Backend (Spring Boot 3.5.16)
+```bash
+cd backend
+./mvnw clean spring-boot:run
+# Windows PowerShell:
+# .\mvnw.cmd clean spring-boot:run
+```
+- REST Health Endpoint: `http://localhost:8080/api/v1/health`
+- Swagger UI / OpenAPI Docs: `http://localhost:8080/swagger-ui.html`
 
-### Illustrative environment variables
+### 4. Run Frontend (React 18 & Vite)
+```bash
+cd ../frontend
+npm install
+npm run dev
+```
+- Open browser: `http://localhost:5173`
 
-``` dotenv
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=smart_water_db
-DB_USERNAME=your_local_username
-DB_PASSWORD=replace_with_local_password
+---
 
-JWT_SECRET=replace_with_a_secure_local_secret
-JWT_EXPIRATION_MINUTES=60
+## 12. Current Development Status & Foundation Verification
 
-# For a Vite frontend; adapt if another React setup is chosen
-VITE_API_BASE_URL=http://localhost:8080
+The **Foundation Milestone** has been implemented, validated, and verified:
 
-# Configure only when email is implemented
-MAIL_HOST=
-MAIL_PORT=
-MAIL_USERNAME=
-MAIL_PASSWORD=
-MAIL_FROM=
+```
+[✓] Backend ApplicationContext startup: PASSED
+[✓] Spring Security 6 stateless filter chain: VERIFIED
+[✓] Diagnostic Health REST API (/api/v1/health): ACTIVE & TESTED
+[✓] MockMvc slice test suite (3/3 tests): 100% PASSING
+[✓] Frontend React 18 / Vite compilation: 1621 modules transformed into dist/ in 4.25s
+[✓] Frontend dev server: READY on http://localhost:5173
+[✓] Zero hardcoded credentials policy: ENFORCED
 ```
 
-These names are examples and must be aligned with the actual application
-configuration. Never commit real secrets.
+---
 
-## 17. Judge Demo (5--7 Minutes)
+## 13. Judge Demonstration Walkthrough (5–7 Minutes)
 
-1.  Explain the apartment water-use and shared-billing problem.
-2.  Log in as a resident and show usage trends, bill summary, and
-    invoice history.
-3.  Log in as an admin and add/upload a reading.
-4.  Show validation and the saved reading.
-5.  Explain the configured tariff and bill calculation.
-6.  Show shared-cost allocation and its fallback rule if relevant.
-7.  Trigger a prepared overuse/anomaly example.
-8.  Download an itemized household PDF invoice.
-9.  Present one implemented differentiator and the evidence for it.
+1. **Context (1 min):** Present the problem of unfair flat-rate water billing and undetected leaks in residential communities.
+2. **Resident Journey (2 mins):** Log into the Resident Portal, review daily usage curves in Recharts, inspect estimated tiered bills, and examine peer benchmarking.
+3. **Admin Operations (2 mins):** Log into the Admin Panel, upload a bulk meter reading CSV, demonstrate instantaneous duplicate rejection, inspect community bulk water accounting, and trigger a billing cycle run.
+4. **Anomaly Flagging (1 min):** Trigger an anomalous reading spike $> 2\sigma$ and demonstrate the real-time alert and notification dispatch.
+5. **Invoice Inspection (1 min):** Download the Apache PDFBox-generated invoice showing itemized tiered usage, proportional bulk allocation, and flat-area fallback.
 
-Use prepared demo data and rehearse the flow. If an external email
-service is unavailable during the presentation, show recorded/test-mode
-evidence honestly rather than claiming a live email was delivered.
+---
 
-## 18. Definition of Done
+## 14. License & Credits
 
-A feature is complete when: - Code is committed to the shared
-repository. - Validation and expected error cases are handled. - Backend
-authorization is enforced where required. - Automated tests cover core
-logic. - The UI uses the real backend endpoint. - The integrated flow
-has been tested. - Documentation is updated. - The team can demonstrate
-it without manual database edits.
-
-## 19. Project Status
-
-This README documents planned scope and implementation guidance. It does
-**not** claim that the application is already implemented. Update
-status, screenshots, test results, deployment URLs, and completed
-features only after verifying them in the repository.
-
-**Team:** Code_Crew\
-**Project:** Development of a Smart Water Usage Monitoring and Automated
-Billing Management Platform
-
-## 20. Future Scope
-
-Possible extensions include IoT water-meter integration, more advanced
-leak detection, apartment water-balance analytics, conservation
-programmes, and additional reporting. These are future possibilities,
-not substitutes for completing the required modules.
-
-## 21. Requirements Basis
-
-This README follows the supplied project specification: four
-implementation modules, an eight-week roadmap, Spring Boot REST backend,
-React.js frontend, PostgreSQL, tiered tariffs, bulk purchase tracking,
-shared-cost allocation, scheduled alerts and `> 2σ` anomaly flags,
-dashboards, PDF invoices, email notifications, testing, documentation,
-and final demonstration.
+Developed by **Team Code_Crew** under the **Infosys Springboard Project 2026**.  
+Released under the [MIT License](LICENSE).

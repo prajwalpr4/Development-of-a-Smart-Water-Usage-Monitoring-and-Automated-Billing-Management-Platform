@@ -1,4 +1,3 @@
--- V3__seed.sql: Weeks 1-2 Foundation Seed Data
 
 INSERT INTO apartments (id, name, code, address, city, total_units)
 VALUES (1, 'Green Valley Heights', 'GVH-01', 'Plot 42, Outer Ring Road', 'Bengaluru', 4);

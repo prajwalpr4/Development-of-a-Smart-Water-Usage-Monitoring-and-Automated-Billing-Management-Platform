@@ -19,10 +19,10 @@ import java.util.stream.Collectors;
 @Component
 public class JwtTokenProvider {
 
-    @Value("${app.jwt.secret}")
+    @Value("${application.security.jwt.secret-key}")
     private String jwtSecret;
 
-    @Value("${app.jwt.expiration-ms:86400000}")
+    @Value("${application.security.jwt.expiration}")
     private long jwtExpirationMs;
 
     private SecretKey key;
@@ -36,7 +36,6 @@ public class JwtTokenProvider {
             byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
             this.key = Keys.hmacShaKeyFor(keyBytes);
         } catch (IllegalArgumentException e) {
-            // Fallback for non-base64 raw secrets in dev/test (must be >= 256 bits / 32 bytes)
             byte[] keyBytes = jwtSecret.getBytes();
             if (keyBytes.length < 32) {
                 throw new IllegalStateException("JWT secret must be at least 256 bits (32 bytes) long", e);

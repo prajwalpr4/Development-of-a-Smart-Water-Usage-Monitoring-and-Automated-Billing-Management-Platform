@@ -1,22 +1,19 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    url: jdbc:h2:mem:smartwatertestdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driverClassName: org.h2.Driver
     username: sa
-    password: ""
-    driver-class-name: org.h2.Driver
-
+    password:
   jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create-drop
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
-
+    show-sql: true
   flyway:
     enabled: false
 
 application:
   security:
     jwt:
-      secret-key: ${JWT_SECRET:VGVzdFNlY3JldEtleUZvclVuaXRUZXN0aW5nT25seU1pbmltdW0yNTZCaXRzTG9uZw==}
-      expiration: ${JWT_EXPIRATION:3600000}
+      secret-key: test_super_secret_key_for_jwt_mocking_purposes_only_12345
+      expiration: 3600000

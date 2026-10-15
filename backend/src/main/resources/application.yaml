@@ -34,6 +34,9 @@ application:
     jwt:
       secret-key: ${JWT_SECRET}
       expiration: ${JWT_EXPIRATION}
+  simulator:
+    min-daily-liters: 150.0
+    max-daily-liters: 950.0
 
 brevo:
   api:

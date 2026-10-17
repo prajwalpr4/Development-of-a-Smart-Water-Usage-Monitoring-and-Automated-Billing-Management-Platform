@@ -15,5 +15,5 @@ spring:
 application:
   security:
     jwt:
-      secret-key: test_super_secret_key_for_jwt_mocking_purposes_only_12345
+      secret-key: dGVzdF9zdXBlcl9zZWNyZXRfa2V5X2Zvcl9qd3RfbW9ja2luZ19wdXJwb3Nlc19vbmx5XzEyMzQ1Njc4OTA=
       expiration: 3600000
